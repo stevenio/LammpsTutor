@@ -1,0 +1,44 @@
+# Uniaxial tensile loading
+
+#-------------------- INITIALIATION --------------------
+units		metal
+dimension	3
+boundary	p p p
+atom_style 	atomic
+variable	latparam equal 4.05
+
+#-------------------- ATOM DEFINITION --------------------
+lattice		fcc ${latparam}
+region 		whole block 0 10 0 10 0 10
+create_box	1 whole
+lattice 	fcc ${latparam} orient x 1 0 0 orient y 0 1 0 orient z 0 0 1
+create_atoms	1 region whole
+
+#-------------------- ATOM DEFINITION --------------------
+pair_style	eam/alloy
+pair_coeff	* * Al99.eam.alloy Al
+
+#-------------------- SETTINGS --------------------
+compute		csym all centro/atom fcc
+compute		peratom all pe/atom
+
+###################################################
+#--------------------
+# Equilibration
+#--------------------
+variable velocity_seed equal 12345
+variable velocity_temperature equal 300 # Kelvin
+
+reset_timestep  0
+timestep	0.001
+
+velocity 	all &
+		create ${velocity_temperature} ${velocity_seed} &
+	 	mom yes &
+		rot no
+
+fix 		1 &
+		all &
+		npt temp 300 300 1 iso 0 0 1 drag 1
+
+
