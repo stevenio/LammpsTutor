@@ -169,7 +169,7 @@ reset_timestep	0 # reset timestep count to "0"
 #		  deform N # box deformation frequency (unit: steps)
 #		    x  # deform along x
 #		    erate # engineering strain rate (1/time-unit)
-#		    unit box # distance is difined using simulation box units
+#		    units box # distance is difined using simulation box units
 #		    remap x  # remap coordinates into deforming box
 #		print 100 # print every 100 steps
 #----------------------------------------------------------------------
@@ -188,7 +188,7 @@ fix		2			&
 		all			&
 		deform 1		&
 		  erate ${sRate1}	&
-		  unit  box		&
+		  units  box		&
 		  remap x
 
 
