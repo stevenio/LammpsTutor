@@ -28,8 +28,10 @@ read_data	system.data
 #-------------------- SYSTEM SETTING --------------------
 include		system.in.settings
 
-variable	traj_filename 		string "my_tensile_md1.lammpstraj"
-variable	log_filename 	string "my_system_log.data"
+variable	mdId			equal	1
+variable	traj_filename 		string	"my_tensile_md1.lammpstraj"
+variable	log_filename 		string	"my_system_log.data"
+variable	restart_filename	string	"memprotein_md${mdId}.restart.mpiio"
 
 ###################################################
 #--------------------
@@ -56,6 +58,14 @@ dump		SaveTraj	&
 		ix 		&
 		iy 		&
 		iz
+#----------------------------------------------------------------------
+# 			Write Restarting Files
+#----------------------------------------------------------------------
+variable	restart_freq	equal	1000
+
+restart		${restart_freq}		&
+		${restart_filename}	
+
 
 #----------------------------------------------------------------------
 # In LAMMPS, "fix" means any operations that is applied to the system
