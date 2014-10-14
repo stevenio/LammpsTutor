@@ -1,0 +1,135 @@
+      pair_coeff 1 1   lj/charmm/coul/charmm/inter 0.1643 7.5 0.4 0
+pair_coeff 1 2 lj/charmm/coul/charmm/inter 0.1643 7.5 0.4 0
+      pair_coeff 4 4 lj/charmm/coul/charmm/inter 0.1643 7.5 0.4 0
+      pair_coeff 2 4 lj/charmm/coul/charmm/inter 0.1643 7.5 0.4 0
+    # -- Default settings/parameters for "CGLipidBr2005" --
+    # (Hybrid bond & angle styles were used for portability.)
+
+    #  As in Watson(JCP 2011), rigid bond-length constraints 
+    #  have been replaced by harmonic bonds.
+    #  The k_theta parameter should lie in between 5*epsilon and 10*epsilon.
+    bond_coeff   1   harmonic     116.847 7.5 #<--2*5000*eps/sig^2
+    #  cosine/delta: U(theta) = k*(1-cos(theta-theta0))
+    #angle_coeff  @angle:backbone  cosine/delta  4.60086042   180 #<--  7*eps
+    #  harmonic: U(theta) = k*(theta-theta0)^2     not (k/2)*(theta-theta0)^2
+    angle_coeff  1  harmonic      9.85898661    180 #<-->30*eps
+
+    # The interaction of "atom:int" with other "atom:int" atoms is given by
+    # epsilon*(0.4*(sigma/r)^12 - 3.0*(sigma/r)^2), shifted and cutoff at 
+    # r=3*sigma.  This was implemented using pair_style table.
+    # Unfortunately, mixing lj/charmm and "table" pair styles in the same
+    # simulation is very inneficient.
+
+  pair_coeff 2  2  table  table_int.dat  INT
+
+    # The interaction of tail beads with eachother is given by the formula below
+    # and with other atoms ...using Lorenz-Berthelot and "repulsive wins" rules:
+    # epsilon*(0.4*(sigma/r)^12 - 1.0*(sigma/r)^6),
+  pair_coeff 3 3 lj/charmm/coul/charmm/inter 0.1643 7.5 0.4 -1
+  pair_coeff 2  3 lj/charmm/coul/charmm/inter 0.1643 7.5 0.4 -1
+
+    # The interaction of head beads which all other beads is given by:
+    # epsilon*(0.4*(sigma/r)^12 - 0.0*(sigma/r)^6),
+
+  pair_coeff 5 5 lj/charmm/coul/charmm/inter 0.1643 7.5 0.4 0
+  pair_coeff 2  5 lj/charmm/coul/charmm/inter 0.1643 7.5 0.4 0
+
+
+    pair_coeff 7 7 lj/charmm/coul/charmm/inter  1.8065518 5.5 1 -1
+    pair_coeff 6 6 lj/charmm/coul/charmm/inter  1.8065518 5.5 1 0
+    pair_coeff 8 8 lj/charmm/coul/charmm/inter  1.8065518 5.5 1 0
+    bond_coeff 2 harmonic  10.0  5.5
+    angle_coeff 2   harmonic   100.0  105.0
+    dihedral_coeff 3 fourier 2 2.167862 3 0 2.167862 1 -60.0
+    dihedral_coeff 4 fourier 2 2.167862 3 0 2.167862 1 -62.5
+    dihedral_coeff 1 fourier 2 2.167862 3 0 2.167862 1 -65.0
+    dihedral_coeff 2      fourier 1 0.361310 3 0
+    # Note: 2.167862=1.2*epsilon and 0.361310=0.2*epsilon.
+
+  # -----------------------------------------------------------
+  # -------- interactions between protein and lipids ----------
+  # -----------------------------------------------------------
+
+  # Interactions between the protein and lipid atoms are usually
+  # determined by mixing rules.  (However this is not possible some 
+  # for atoms, such as the "int" atoms in the lipid model which 
+  # interact using -1/r^2 attraction.)  Mixing rules do not make
+  # sense for these atoms so we must explicitly define their 
+  # interaction with all other atoms.
+
+  # We want the hydrophobic interactions between hydrophobic residues in 
+  # the protein and beads the interior of the lipid to be energetically 
+  # similar to the attractive interactions between the lipid tails.
+  #
+  # Note: I made the width of the outward-facing protein beads slightly larger
+  # ("12.5") whenever they interact with the "tail" beads in each lipid
+  # (in order to make the protein wider there).
+  # This hopefully relieves some of the internal negative pressure in the center
+  # of the bilayer which can otherwise rip apart the protein or suck it into 
+  # the bilaer.  (This is a hack, and I'm not sure if it is necessary.
+  # For different protein or lipid models, you probably don't need this.)
+  #
+  #                  i                      j                   pairstylename                     eps   sig  K  L
+
+  pair_coeff 3      7 lj/charmm/coul/charmm/inter 0.1643 12.5 0.4 -1
+  pair_coeff 2       7 lj/charmm/coul/charmm/inter 0.1643 7.5 0.4 -1
+
+  # To help keep the protein from tilting 90 degrees and burying itself 
+  # within the lipid bilayer, we make the turn regions at either 
+  # end of the protein (strongly)  attracted to the head groups 
+  # of the lipid.  (In reality, they  would probably be attracted 
+  # to the water as well.)
+
+  pair_coeff 1 8 lj/charmm/coul/charmm/inter 1.8065518 5.5 1 -1
+  pair_coeff 1 8 lj/charmm/coul/charmm/inter 1.8065518 5.5 1 -1
+
+  # All other interactions between proteins and lipids are steric.
+
+  pair_coeff 3      6 lj/charmm/coul/charmm/inter 0.1643 7.5 0.4 0
+  pair_coeff 3      8 lj/charmm/coul/charmm/inter 0.1643 7.5 0.4 0
+
+  pair_coeff 2       6 lj/charmm/coul/charmm/inter 0.1643 7.5 0.4 0
+  pair_coeff 2       8 lj/charmm/coul/charmm/inter 0.1643 7.5 0.4 0
+
+  pair_coeff 1 7 lj/charmm/coul/charmm/inter 0.1643 7.5 0.4 0
+  pair_coeff 1 6 lj/charmm/coul/charmm/inter 0.1643 7.5 0.4 0
+
+  pair_coeff 4 7 lj/charmm/coul/charmm/inter 0.1643 7.5 0.4 0
+  pair_coeff 4 6 lj/charmm/coul/charmm/inter 0.1643 7.5 0.4 0
+
+
+  # -----------------------------------------------------------
+  # -------- Modifications to the protein model: --------------
+  # -----------------------------------------------------------
+  #
+  # Turn off attraction between the hydrophobic "@atom:sH" beads:
+  # (These beads are located in the outside of a trans-membrane protein.)
+
+  pair_coeff 7 7 lj/charmm/coul/charmm/inter  1.8065518 5.5 1 0
+
+  # (Why: These beads are only attracted to 
+  #       each other in an aqueous environment)
+
+  # ... and
+  # Turn ON attraction between the hydrophilic "@atom:sL" beads.
+  # (These beads are located in the interior of a trans-membrane protein.)
+
+  pair_coeff 6 6 lj/charmm/coul/charmm/inter  1.8065518 5.5 1 -1
+
+  # Why?
+  #   In reality, polar groups in the interior of trans-membrane 
+  # proteins do form hydrogen bonds with each other.  This was 
+  # absent from the original protein model because, in an aqueous 
+  # environment, these groups preferentially interact with the water.
+  #
+  # Why is this necessary?
+  #   Shouldn't attraction between lipid tails and the protein create
+  # an effective force which brings the hydrophilic beads together?
+  # (similar to the hydrophobic effect, but in reverse?).
+  # Answer:
+  #   Unlike an aqueous environment (~zero pressure, or +1atm), there is 
+  # a large negative pressure in the interior of some bilayer membrane 
+  # models (such as this one).  Without some kind of direct attraction 
+  # between interior residues, the protein will get pulled apart.
+  # (Perhaps the attractive force I am using is too strong?)
+
