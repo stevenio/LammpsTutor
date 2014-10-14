@@ -29,9 +29,11 @@ read_data	system.data
 include		system.in.settings
 
 variable	mdId			equal	1
-variable	traj_filename 		string	"my_tensile_md1.lammpstraj"
-variable	log_filename 		string	"my_system_log.data"
-variable	restart_filename	string	"memprotein_md${mdId}.restart.mpiio"
+variable	output_basename		string	memprotein_md${mdId}
+variable	traj_filename 		string	${output_basename}.lammpstraj
+variable	log_filename 		string	${output_basename}.data
+variable	restart_filename	string	${output_basename}.restart.mpiio
+variable	old_restart_filename	string	${output_basename}.restart.old.mpiio
 
 ###################################################
 #--------------------
@@ -64,7 +66,8 @@ dump		SaveTraj	&
 variable	restart_freq	equal	1000
 
 restart		${restart_freq}		&
-		${restart_filename}	
+		${restart_filename}	&
+		${old_restart_filename}
 
 
 #----------------------------------------------------------------------
