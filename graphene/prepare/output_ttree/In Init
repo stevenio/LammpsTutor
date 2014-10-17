@@ -1,0 +1,1 @@
+    pair_style  hybrid  lj/cut/coul/long  10.0

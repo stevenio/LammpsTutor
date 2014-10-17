@@ -1,0 +1,200 @@
+# Title: CG membrane + protein
+# Author: Yuhang Wang
+# Date:   10/14/2014
+# ref: Moltemplate examples/
+#============================================================
+# -------- REQUIREMENTS: ---------
+# 1) This example requires the "USER-MISC" package.  (Use "make yes-USER-MISC")
+#   http://lammps.sandia.gov/doc/Section_start.html#start_3
+# 2) It also may require additional features and bug fixes for LAMMPS.
+#   So, after typing "make yes-user-misc" in to the shell, ...
+#   be sure to download and copy the "additional_lammps_code" from
+#   http://moltemplate.org     (upper-left corner menu)
+# 3) Unpack it
+# 4) copy the .cpp and .h files to the src folding of your lammps installation.
+# 5) Compile LAMMPS.
+#
+# If LAMMPS complains about an "Invalid pair_style", or "Invalid dihedral_style"
+# then you made a mistake in the instructions above.
+#
+#============================================================
+
+#-------------------- INITIALIATION --------------------
+include		system.in.init
+
+#-------------------- ATOM DEFINITION --------------------
+read_restart    memprotein_md1.restart.rst
+#read_restart	restart_md1.mpiio
+
+#read_data	system_nobox.data
+print "------------ restart---------------"
+
+#-------------------- SYSTEM SETTING --------------------
+include		system.in.settings
+
+variable	mdId			equal	2
+variable	output_basename		string	memprotein_md${mdId}
+variable	traj_filename 		string	${output_basename}.lammpstraj
+variable	log_filename 		string	${output_basename}.data
+variable	restart_filename	string	${output_basename}.restart.mpiio
+variable	old_restart_filename	string	${output_basename}.restart.old.mpiio
+
+###################################################
+#--------------------
+# Equilibration
+#--------------------
+timestep	10.0
+
+#----------------------------------------------------------------------
+# 			Save trajectories
+#----------------------------------------------------------------------
+variable traj_freq	equal	500
+
+dump		SaveTraj	&
+		all 		&
+		custom		&
+		${traj_freq}	&
+		${traj_filename}&
+		id 		&
+		mol 		&
+		type 		&
+		x 		&
+		y 		&
+		z 		&
+		ix 		&
+		iy 		&
+		iz
+#----------------------------------------------------------------------
+# 			Write Restarting Files
+#----------------------------------------------------------------------
+variable	restart_freq	equal	1000
+
+restart		${restart_freq}		&
+		${restart_filename}	&
+		${old_restart_filename}
+
+
+#----------------------------------------------------------------------
+# In LAMMPS, "fix" means any operations that is applied to the system
+#	during time-stepping or minimization.
+#---------------------------------------------
+# fix		ID	# user-assigned name
+#		groupID	# ID of the group of atoms to be applied to
+#		langevin # using Langevin thermostat
+#		T_start  # starting temperature
+#		T_end	 # ending tempeature
+#		damping  # damping parameter (time units)
+#
+# fix		ID	# user-assigned name
+#		groupID	# ID of the group of atoms to be applied to
+#		nph	# constant N, pressure and enthalpy
+#		  x P_start P_stop P_damping # external stress tensor component at start/end of run (pressure units)
+#		  y P_start P_stop P_damping
+#		  couple xy # couple the pressure in x and y
+#----------------------------------------------------------------------
+
+
+#------------------------------------------------------------
+#		 Temperature
+#------------------------------------------------------------
+# using Langevin thermostat
+#------------------------------------------------------------
+variable T_start equal 300
+variable T_end   equal 300
+variable langevin_damping equal 120
+variable langevin_seed	  equal 48279
+
+fix 		LangevinT	 	&
+		all		 	&
+		langevin 	 	&
+		  ${T_start}		&
+		  ${T_end} 		&
+		  ${langevin_damping}	&
+		  ${langevin_seed}
+
+#------------------------------------------------------------
+#		 Thermodynamics Ensemble
+#------------------------------------------------------------
+# using NPH ensemble
+# note:
+# 1. we maintain the system at zero tention using pressure
+#    damping factor 1000. (i.e. "0 0 1000")
+# 2. Langevin damping factor 120 corresponds to 0.12 ps damping time
+#    as in Watson et. al. JCP 2011
+#------------------------------------------------------------
+variable	P_start equal 0. # starting pressure
+variable 	P_end   equal 0. # ending   pressure
+variable	P_damp  equal 1000. # pressure damping parameter
+
+fix		NPH		&
+		all		&
+		nph		&
+		x		&
+		 ${P_start}     &
+		 ${P_start}	&
+		 ${P_damp}	&
+		y 		&
+		 ${P_start}	&
+		 ${P_end}	&
+		 ${P_damp}	&
+		couple xy
+
+
+#----------------------------------------------------------------------
+# Thermodynamics Outputs
+# thermo 1000 # output thermodynamics every 1000 steps
+#
+# Set the style and content for printing thermodynami data to the screen and log
+# thermo_style	custom  # use customized list of keywords
+#		  step		# timestep
+#		  lx ly lz	# box length Lx, Ly, Lz
+#		  press		# pressure
+#		  pxx pyy pzz 
+#		  pxy pxz pyz	# the 6 components of pressure tensor
+#		  pe		# total potential energy
+#		  temp		# temperature 
+#----------------------------------------------------------------------
+thermo	1000
+thermo_style	custom		&
+		  step		&
+		  lx		&
+		  ly		&
+		  lz		&
+		  press		&
+		  pxx 		&
+		  pyy		&
+		  pzz		&
+		  pe		&
+		  temp
+
+
+#------------------------------------------------------------
+# RUN
+#------------------------------------------------------------
+# run examples:
+#------------------------------
+# run # kyeword values
+#------------------------------
+# run 10000
+# run 1000000 upto
+# run 100 start 0 stop 1000
+# run 1000 pre no post yes
+# run 100000 start 0 stop 1000000 every 1000 "print 'Protein Rg = $r'"
+# run 100000 every 1000 NULL 
+#------------------------------
+run	2000
+
+#------------------------------------------------------------
+# write output data
+#------------------------------------------------------------
+write_data ${log_filename}
+
+#------------------------------------------------------------
+# unfix fixID # to delete a "fix"
+#------------------------------------------------------------
+unfix	1
+
+
+#------------------------------------------------------------
+print "==================== All done ===================="
+#------------------------------------------------------------

@@ -1,0 +1,9 @@
+    #              i       j                             epsilon     sigma
+    pair_coeff  1 1  lj/cut/coul/long       0.068443     3.407
+    
+    # These Lennard-Jones parameters come from
+    #  R. Saito, R. Matsuo, T. Kimura, G. Dresselhaus, M.S. Dresselhaus,
+    #  Chem Phys Lett, 348:187 (2001)
+
+    # Define a group consisting of only carbon atoms in graphene molecules
+    group Cgraphene type 1

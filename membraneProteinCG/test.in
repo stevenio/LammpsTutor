@@ -1,0 +1,8 @@
+variable	mdId			equal	1
+variable	output_basename		string	memprotein_md${mdId}
+variable	traj_filename 		string	${output_basename}.lammpstraj
+variable	log_filename 		string	${output_basename}.data
+variable	restart_filename	string	${output_basename}.restart.mpiio
+variable	old_restart_filename	string	${output_basename}.restart.old.mpiio
+print ${output_basename}
+print ${restart_filename}
