@@ -11,7 +11,7 @@
 # simtemp.av.dim${ndim} (temperature), sxy.av.dim${ndim} (shear
 # stress)
 units		si
-variable       ndim  index 3
+variable       ndim  index 2
 variable number_density equal 6
 # domain size 
 variable        xsize equal 12
