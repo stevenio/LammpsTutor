@@ -89,7 +89,7 @@ compute 	stress 	&
 variable stress_pressure atom c_stress[4]*${number_density}
 fix av_xy_stress all ave/spatial 1 ${Nrepeat} ${Nfreq} x lower 0.5 v_stress_pressure file sxy.av.dim${ndim}
 
-if "${ndim}==3" then "dump mdump all custom 10000 dump.dpd.${ndim} id type xs ys vx vy" else &
+if "${ndim}==2" then "dump mdump all custom 1000 dump.dpd.${ndim}.lammpstraj id type xs ys vx vy" else &
 "dump mdump all custom 10000 dump.dpd.${ndim} id type xs ys zs vx vy vz"
 
 variable fy atom mass*${gy}*((x>${xsize}/2.0)-(x<${xsize}/2.0))
